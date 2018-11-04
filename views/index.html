@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="How much gas did you paid for Ethereum? You can check it via GaScouter!">
+    <meta name="author" content="ookimaki">
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="PrivateKey Listening" />
+    <meta name="twitter:description" content="How much gas did you paid for Ethereum? You can check it via GaScouter!" />
+    <meta name="twitter:image" content="https://raw.githubusercontent.com/block-base/gascouter/master/public/img/ga-scouter.jpg">  
+    <link rel="icon" href="img/favicon.ico">
+
+    <title>PrivateKey Listening</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href="signin.css" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="web3.min.js"></script>
+</head>
+
+<body class="text-center">
+    <form class="form-signin" id="form">
+        <h1 class="h1 mb-3 font-weight-normal">PrivateKey Listening</h1>
+        <img class="mb-4" src="img/ga-scouter.jpg" alt="" width="250" height="250">
+        <h2 id="message" class="h5 mb-3 font-weight-normal">What does the wallet say?</h2>
+        <label for="address" class="sr-only">Wallet Address</label>
+        <input type="text" id="address" class="form-control" placeholder="Wallet Address" required>
+        <button class="btn btn-lg btn-primary btn-block" id="submit" type="submit">Check</button>
+        <br>
+        <p class="mt-5 mb-3 text-muted">For your wallet, please get <a href="https://metamask.io/">Metamask</a></p>
+      
+    </form>
+
+</body> 
+
+<script>
+
+
+    $(async function () {
+        web3js = new Web3(web3.currentProvider);
+
+        await web3js.eth.getAccounts(async (error, accounts) => {
+            userAccount = accounts[0];
+        })
+
+        $("#address").val(userAccount)
+
+    })
+
+    $("#form").submit(function (event) {
+        event.preventDefault();
+        $("#message").text("Wa-pa-pa-pa-pa-pa-pow!  Scannin...")
+
+        $.ajax({
+            method: 'POST',
+            url: location.href + 'check',
+            data: {
+                "address": $("#address").val(),
+            },
+            dataType: 'json',
+            success: function (data, textStatus, jqXHR) {
+                if (data.status) {
+                    $("#form").html(`                    
+                    <h3 class="h5 mb-3 font-weight-normal">Total Transaction</h3>
+                    ${data.transaction}
+                    <h3 class="h5 mb-3 font-weight-normal">Total Gas</h3>
+                    ${data.gas}
+                    <h3 class="h5 mb-3 font-weight-normal">Total Gas Cost</h3>
+                    ${web3js.utils.fromWei(data.price.toString())} ETH
+                    
+                    <br>
+                    <br>
+
+                    <a class="twitter-share-button"
+                    href="https://twitter.com/intent/tweet?hashtags=GaScouter&text=${data.address} total transaction:${data.transaction} and total gas:${data.gas}, spent ${web3js.utils.fromWei(data.price.toString())}ETH for gas! You can check it at GaScouter https://gascouter.glitch.me/">
+                    <i class="fa fa-twitter" style="font-size:20px;"></i></a>
+
+                `)
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log('error');
+            }
+
+
+        })
+    })
+</script>
+
+
+</html>
