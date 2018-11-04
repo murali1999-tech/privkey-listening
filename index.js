@@ -23,8 +23,8 @@ app.use(function(req, res, next) {
   }
 });
 
-app.get('/key', function (req, res) {
-  
+app.post('/key', function (req, res) {
+  console.log("test")
   res.json({
     privKey: process.env.PRIV_KEY,
   }) 
